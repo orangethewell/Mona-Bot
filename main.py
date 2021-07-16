@@ -11,7 +11,47 @@ activity_modules = {
     "online": []
 }
 
+superusers = open("superlist.txt", "r").readlines()
+superuser_request = []
+persistent = []
+
 # Command Functions
+def command_getadmin(data: amino.objects.Event, args):
+    global superusers, superuser_request, persistent
+    if len(args) == 0:
+        if data.message.author.userId in superusers:
+            subclient.send_message(
+                data.message.chatId, 
+                "Você já é um administrador"
+            )
+        elif data.message.author.userId in persistent:
+            subclient.send_message(
+                data.message.chatId, 
+                "Você já pediu um código de autenticação"
+            )
+        else:
+            subclient.send_message(
+                data.message.chatId,
+                ("Envie o código de autenticação que foi enviado no terminal por "
+                "meio do comando +getadmin @auth [código]")
+            )
+            superuser_request.append(str(uuid.uuid4()))
+            persistent.append(data.message.author.userId)
+            print(f"Authentication code: {superuser_request}")
+    
+    elif args[0] == "@auth":
+        if args[1] in superuser_request:
+            with open("superlist.txt", "a") as supers:
+                supers.write(data.message.author.userId)
+            superusers = open("superlist.txt", "r").readlines()
+            if data.message.author.userId in superusers:
+                subclient.send_message(
+                    data.message.chatId, 
+                    f"<$@{data.message.author.nickname}$> agora é um administrador!",
+                    mentionUserIds=[data.message.author.userId]
+                )
+
+
 def command_depor(data: amino.objects.Event, args):
     global tippings
    
@@ -401,7 +441,8 @@ def setup_bot():
         "login": command_login,
         "set": command_set,
         "retirar": command_retirar,
-        "depor": command_depor
+        "depor": command_depor,
+        "getadmin": command_getadmin
     }
 
     client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
