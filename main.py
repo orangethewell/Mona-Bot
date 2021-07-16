@@ -404,7 +404,6 @@ def setup_bot():
         "depor": command_depor
     }
 
-    # client.login("reradid427@nhmty.com", "monaregedit00")
     client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
     subclient = amino.SubClient(aminoId="Programaspy", profile=client.profile)
 
