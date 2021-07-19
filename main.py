@@ -451,12 +451,14 @@ def setup_bot():
     # Show bot status
     print(60*"=")
     print("Mona | Bot is up! Starting getting messages...")
+    print(f"status: {subclient.activity_status()}")
     print(60*"=", "\n")
 
     global IS_ON, IS_SENSITIVE, tippings
     IS_ON = True
     IS_SENSITIVE = False
 
+    # Transfering wallet refered data
     wiki = subclient.get_wiki_info(client.get_from_code("qj79l5").objectId).wiki
     tips = subclient.get_tipped_users(wikiId=wiki.wikiId)
     tippings = dict(zip(tips.author.userId, tips.totalTippedCoins))
