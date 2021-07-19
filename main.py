@@ -1,3 +1,4 @@
+import time
 import amino
 import database
 import hashlib
@@ -16,6 +17,10 @@ superuser_request = []
 persistent = []
 
 # Command Functions
+def command_temporally_not_available(data: amino.objects.Event, args):
+    subclient.send_message(data.message.chatId,
+        "Esse comando está temporariamente indisponível.")
+
 def command_getadmin(data: amino.objects.Event, args):
     global superusers, superuser_request, persistent
     if len(args) == 0:
@@ -437,12 +442,12 @@ def setup_bot():
     command_list = {
         "ping": command_ping,
         "banktotal": command_banktotal,
-        "registrar": command_registrar,
-        "login": command_login,
-        "set": command_set,
-        "retirar": command_retirar,
-        "depor": command_depor,
-        "getadmin": command_getadmin
+        "registrar": command_temporally_not_available, # command_registrar,
+        "login": command_temporally_not_available, # command_login,
+        "set": command_temporally_not_available, # command_set,
+        "retirar": command_temporally_not_available, # command_retirar,
+        "depor": command_temporally_not_available, # command_depor,
+        "getadmin": command_temporally_not_available, # command_getadmin
     }
 
     client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
@@ -451,7 +456,6 @@ def setup_bot():
     # Show bot status
     print(60*"=")
     print("Mona | Bot is up! Starting getting messages...")
-    print(f"status: {subclient.activity_status()}")
     print(60*"=", "\n")
 
     global IS_ON, IS_SENSITIVE, tippings
@@ -462,6 +466,12 @@ def setup_bot():
     wiki = subclient.get_wiki_info(client.get_from_code("qj79l5").objectId).wiki
     tips = subclient.get_tipped_users(wikiId=wiki.wikiId)
     tippings = dict(zip(tips.author.userId, tips.totalTippedCoins))
+
+    while True:
+        time.sleep(300)
+        print("Restarting websock...")
+        client.close()
+        client.start()
 
 if __name__ == "__main__":
     setup_bot()
