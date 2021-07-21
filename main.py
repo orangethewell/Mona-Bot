@@ -12,9 +12,9 @@ activity_modules = {
     "online": []
 }
 
-superusers = open("superlist.txt", "r").readlines()
+superusers = database.session.query(database.Admin).all()
 superuser_request = []
-persistent = []
+pending = []
 
 # Command Functions
 def command_temporally_not_available(data: amino.objects.Event, args):
@@ -22,14 +22,14 @@ def command_temporally_not_available(data: amino.objects.Event, args):
         "Esse comando está temporariamente indisponível.")
 
 def command_getadmin(data: amino.objects.Event, args):
-    global superusers, superuser_request, persistent
+    global superusers, superuser_request, pending
     if len(args) == 0:
-        if data.message.author.userId in superusers:
+        if data.message.author.userId == (superuser.amino_profile_id for superuser in superusers):
             subclient.send_message(
                 data.message.chatId, 
                 "Você já é um administrador"
             )
-        elif data.message.author.userId in persistent:
+        elif data.message.author.userId in pending:
             subclient.send_message(
                 data.message.chatId, 
                 "Você já pediu um código de autenticação"
@@ -41,15 +41,19 @@ def command_getadmin(data: amino.objects.Event, args):
                 "meio do comando +getadmin @auth [código]")
             )
             superuser_request.append(str(uuid.uuid4()))
-            persistent.append(data.message.author.userId)
+            pending.append(data.message.author.userId)
             print(f"Authentication code: {superuser_request}")
     
     elif args[0] == "@auth":
         if args[1] in superuser_request:
-            with open("superlist.txt", "a") as supers:
-                supers.write(data.message.author.userId)
-            superusers = open("superlist.txt", "r").readlines()
-            if data.message.author.userId in superusers:
+            admin = database.Admin(
+                amino_profile_id=data.message.author.userId,
+                privileges_level=1
+            )
+            database.session.add(admin)
+            database.commit()
+            superusers = database.session.query(database.Admin).all()
+            if data.message.author.userId == (superuser.amino_profile_id for superuser in superusers):
                 subclient.send_message(
                     data.message.chatId, 
                     f"<$@{data.message.author.nickname}$> agora é um administrador!",
@@ -442,12 +446,12 @@ def setup_bot():
     command_list = {
         "ping": command_ping,
         "banktotal": command_banktotal,
-        "registrar": command_temporally_not_available, # command_registrar,
-        "login": command_temporally_not_available, # command_login,
-        "set": command_temporally_not_available, # command_set,
-        "retirar": command_temporally_not_available, # command_retirar,
-        "depor": command_temporally_not_available, # command_depor,
-        "getadmin": command_temporally_not_available, # command_getadmin
+        "registrar": command_registrar, # command_registrar,
+        "login": command_login, # command_login,
+        "set": command_set, # command_set,
+        "retirar": command_retirar, # command_retirar,
+        "depor": command_depor, # command_depor,
+        "getadmin": command_getadmin, # command_getadmin
     }
 
     client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
@@ -469,7 +473,6 @@ def setup_bot():
 
     while True:
         time.sleep(300)
-        print("Restarting websock...")
         client.close()
         client.start()
 
