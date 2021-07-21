@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy import create_engine
 import datetime, os
 
-engine = create_engine(os.environ["DATABASE_URL"])
+engine = create_engine(os.environ["DATABASE_URI"])
 Session = sessionmaker(bind=engine)
 session = Session()
 
