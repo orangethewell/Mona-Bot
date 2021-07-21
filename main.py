@@ -439,7 +439,7 @@ def on_text_message(data: amino.objects.Event):
         message = message.replace("+", "").split(" ")
         execute_command(message[0], data, message[1:] if len(message) >= 2 else [])
 
-    print(f"{data.message.author.nickname}: {data.message.content}" if IS_ON and not IS_SENSITIVE else "")
+    print(f"{data.message.author.nickname} ({data.message.author.aminoId}): {data.message.content}" if IS_ON and not IS_SENSITIVE else "")
     IS_SENSITIVE = False
 
 # Setup Bot client and subclient
