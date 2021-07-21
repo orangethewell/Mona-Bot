@@ -16,6 +16,8 @@ superusers = database.session.query(database.Admin).all()
 superuser_request = []
 pending = []
 
+wikicode = "z9e7as"
+
 # Command Functions
 def command_temporally_not_available(data: amino.objects.Event, args):
     subclient.send_message(data.message.chatId,
@@ -64,7 +66,7 @@ def command_getadmin(data: amino.objects.Event, args):
 def command_depor(data: amino.objects.Event, args):
     global tippings
    
-    wiki = subclient.get_wiki_info(client.get_from_code("qj79l5").objectId).wiki
+    wiki = subclient.get_wiki_info(client.get_from_code(wikicode).objectId).wiki
     tips = subclient.get_tipped_users(wikiId=wiki.wikiId)
     tippings = dict(zip(tips.author.userId, tips.totalTippedCoins))
 
@@ -467,7 +469,7 @@ def setup_bot():
     IS_SENSITIVE = False
 
     # Transfering wallet refered data
-    wiki = subclient.get_wiki_info(client.get_from_code("qj79l5").objectId).wiki
+    wiki = subclient.get_wiki_info(client.get_from_code(wikicode).objectId).wiki
     tips = subclient.get_tipped_users(wikiId=wiki.wikiId)
     tippings = dict(zip(tips.author.userId, tips.totalTippedCoins))
 
