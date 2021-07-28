@@ -146,10 +146,10 @@ async def command_retirar(data: amino.objects.Event, subclient, args):
     
     else:
         if value > available_get:
-            subclient.send_message(data.message.chatId,
+            await subclient.send_message(data.message.chatId,
             "Você não possui essa quantia de moedas!")
         elif value > int(client.get_wallet_info().totalCoins):
-            subclient.send_message(data.message.chatId,
+            await subclient.send_message(data.message.chatId,
             "O banco não possui essa quantia de moedas!")
         else:
             print("Internal Error")
