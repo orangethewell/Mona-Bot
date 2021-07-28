@@ -38,6 +38,6 @@ class ActiveUser:
         self.signature = signature
         
 
-if __name__ == "__main__":
-    Base.metadata.create_all(engine)
+
+Base.metadata.create_all(engine)
 
