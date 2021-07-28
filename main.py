@@ -8,6 +8,8 @@ import hashlib
 import uuid
 import os
 
+IS_ON = False
+
 client = amino.Client()
 
 activity_modules = {
