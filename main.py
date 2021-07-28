@@ -9,6 +9,7 @@ import uuid
 import os
 
 IS_ON = False
+IS_SENSITIVE = False
 
 client = amino.Client()
 
@@ -87,7 +88,7 @@ async def command_getadmin(data: amino.objects.Event, subclient, args):
 async def command_depositar(data: amino.objects.Event, subclient, args):
     global tippings
     
-    await update_banktips_data()
+    await update_banktips_data(subclient)
 
     for user in activity_modules["online"]:
             if user.userid == data.message.author.userId:
