@@ -36,7 +36,7 @@ async def update_banktips_data(subclient):
     global tippings
     sclient = amino.Client()
     await sclient.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
-    objectid = (await client.get_from_code(wikicode)).objectId
+    objectid = (await sclient.get_from_code(wikicode)).objectId
     wiki = (await subclient.get_wiki_info(objectid)).wiki
     tips = (await subclient.get_tipped_users(wikiId=wiki.wikiId))
     tippings = dict(zip(tips.author.userId, tips.totalTippedCoins))
