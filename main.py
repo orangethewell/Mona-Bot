@@ -34,10 +34,13 @@ async def is_chat_private(subclient, chatId):
 
 async def update_banktips_data(subclient):
     global tippings
+    sclient = amino.Client()
+    await sclient.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
     objectid = (await client.get_from_code(wikicode)).objectId
     wiki = (await subclient.get_wiki_info(objectid)).wiki
     tips = (await subclient.get_tipped_users(wikiId=wiki.wikiId))
     tippings = dict(zip(tips.author.userId, tips.totalTippedCoins))
+    sclient.close()
 
 # Command Functions
 async def command_temporally_not_available(data: amino.objects.Event, subclient, args):
@@ -442,8 +445,8 @@ async def command_ping(data: amino.objects.Event, subclient, args):
         f"pong 2.0! <$@{data.message.author.nickname}$>", 
         mentionUserIds=[data.message.author.userId])
 
-async def execute_command(command, data, args):
-    subclient = await amino.SubClient(aminoId="Programaspy", profile=client.profile)
+async def execute_command(command, data: amino.objects.Event, args):
+    subclient = await amino.SubClient(data.comId, profile=client.profile)
     if command in command_list and bot_nickname != data.message.author.nickname:
         try:
             await command_list[command](data, subclient, args)
