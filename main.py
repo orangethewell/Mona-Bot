@@ -40,7 +40,7 @@ async def update_banktips_data(subclient):
     wiki = (await subclient.get_wiki_info(objectid)).wiki
     tips = (await subclient.get_tipped_users(wikiId=wiki.wikiId))
     tippings = dict(zip(tips.author.userId, tips.totalTippedCoins))
-    sclient.close()
+    sclient.session.close()
 
 # Command Functions
 async def command_temporally_not_available(data: amino.objects.Event, subclient, args):
