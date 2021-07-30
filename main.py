@@ -57,6 +57,26 @@ async def command_temporally_not_available(data: amino.objects.Event, subclient,
     await subclient.send_message(data.message.chatId,
         "Esse comando está temporariamente indisponível.")
 
+async def command_getbankusers(data: amino.objects.Event, subclient: amino.SubClient, args):
+    if not is_admin(data.message.author.userId):
+        await subclient.send_message(
+            data.message.chatId,
+            "Você não tem acesso a esse comando"
+            )
+    else:
+        users = database.session.query(database.User).all()
+
+        if is_chat_private(subclient, data.message.chatId):
+            for user in users:
+                try:
+                    userprofile = await subclient.get_user_info(user.amino_profile_id)
+                    await subclient.send_message(data.message.chatId, 
+                    f"Usuário({user.id}): {userprofile.nickname}")
+                
+                except:
+                    await subclient.send_message(data.message.chatId, 
+                    f"Usuário({user.id}): Não está presente nessa comunidade.")
+
 async def command_getsaldo(data, subclient, args):
     if is_online(data.message.author.userId):
         query_for = data.message.author.userId
@@ -517,6 +537,7 @@ async def setup_bot():
         "depositar": command_depositar, 
         "getadmin": command_getadmin,
         "saldo": command_getsaldo, 
+        "bankusers": command_getbankusers,
     }
 
     await client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
