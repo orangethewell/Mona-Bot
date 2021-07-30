@@ -1,8 +1,6 @@
 import time
 import amino
 import asyncio
-
-from amino.lib.util.exceptions import NotOwnerOfChatBubble
 import database
 import hashlib
 import uuid
@@ -18,13 +16,25 @@ activity_modules = {
     "online": []
 }
 
-superusers = database.session.query(database.Admin).filter_by(privileges_level = 1).all()
 superuser_request = []
 pending = []
 
 wikicode = "z9e7as"
 
 # Other Functions
+def is_admin(userId):
+    superuser = database.session.query(database.Admin).filter_by(amino_profile_id = userId).first()
+    if superuser:
+        return True
+    return False
+
+def is_online(userId):
+    for user in activity_modules["online"]:
+            if user.userid == userId:
+                return True
+
+    return False
+
 async def is_chat_private(subclient, chatId):
     chatType = (await subclient.get_chat_thread(chatId)).type
     if chatType == 0:
@@ -47,10 +57,22 @@ async def command_temporally_not_available(data: amino.objects.Event, subclient,
     await subclient.send_message(data.message.chatId,
         "Esse comando está temporariamente indisponível.")
 
+async def command_getsaldo(data, subclient, args):
+    if is_online(data.message.author.userId):
+        query_for = data.message.author.userId
+    else:
+        await subclient.send_message(data.message.chatId,
+        "Você não está logado!")
+        return None
+
+    balance = database.session.query(database.User).filter_by(amino_profile_id=query_for).first().amino_coins_count
+    await subclient.send_message(data.message.chatId,
+        f"Você possui um total de {int(balance)} moedas")
+
 async def command_getadmin(data: amino.objects.Event, subclient, args):
     global superusers, superuser_request, pending
     if len(args) == 0:
-        if data.message.author.userId == (superuser.amino_profile_id for superuser in superusers):
+        if is_admin(data.message.author.userId):
             await subclient.send_message(
                 data.message.chatId, 
                 "Você já é um administrador"
@@ -78,14 +100,14 @@ async def command_getadmin(data: amino.objects.Event, subclient, args):
             )
             database.session.add(admin)
             database.commit()
-            superusers = database.session.query(database.Admin).filter_by(privileges_level = 1).all()
-            if data.message.author.userId == (superuser.amino_profile_id for superuser in superusers):
+            if is_admin(data.message.author.userId):
                 await subclient.send_message(
                     data.message.chatId, 
                     f"<$@{data.message.author.nickname}$> agora é um administrador!",
                     mentionUserIds=[data.message.author.userId]
                 )
             superuser_request.remove(args[1])
+            pending.remove(data.message.author.userId)
 
 
 async def command_depositar(data: amino.objects.Event, subclient, args):
@@ -93,10 +115,8 @@ async def command_depositar(data: amino.objects.Event, subclient, args):
     
     await update_banktips_data(subclient)
 
-    for user in activity_modules["online"]:
-            if user.userid == data.message.author.userId:
-                query_for = user.userid
-                break
+    if is_online(data.message.author.userId):
+        query_for = data.message.author.userId
     else:
         await subclient.send_message(data.message.chatId,
         "Você não está logado!")
@@ -488,7 +508,8 @@ async def setup_bot():
         "set": command_set, 
         "retirar": command_retirar, 
         "depositar": command_depositar, 
-        "getadmin": command_getadmin, 
+        "getadmin": command_getadmin,
+        "saldo": command_getsaldo, 
     }
 
     await client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
@@ -506,10 +527,7 @@ async def setup_bot():
 
     IS_ON = True
     IS_SENSITIVE = False
-    while True:
-        await asyncio.sleep(300)
-        await client.session.close()
-        await client.startup()
+
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

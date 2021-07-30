@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy import create_engine
 import datetime, os
 
-engine = create_engine(os.environ["DATABASE_URI"])
+engine = create_engine(os.environ["DATABASE_URI"], echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -38,6 +38,7 @@ class ActiveUser:
         self.signature = signature
         
 
-
-Base.metadata.create_all(engine)
+if __name__ == "__main__":
+    Admin.__table__.create(engine)
+    User.__table__.create(engine)
 
