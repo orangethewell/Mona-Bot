@@ -143,19 +143,19 @@ async def command_depositar(data: amino.objects.Event, subclient, args):
             "Você ainda não fez um depósito na carteira!")
     
 async def command_retirar(data: amino.objects.Event, subclient, args):
-    for user in activity_modules["online"]:
-            if user.userid == data.message.author.userId:
-                query_for = user.userid
-                break
+    if is_online(data.message.author.userId):
+        query_for = data.message.author.userId
     else:
         await subclient.send_message(data.message.chatId,
         "Você não está logado!")
         return None
 
+    sclient = amino.Client()
+    sclient.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
     value = int(args[0])
     available_get = database.session.query(database.User).filter_by(amino_profile_id=query_for).first().amino_coins_count
 
-    if value <= available_get and value <= int(client.get_wallet_info().totalCoins):
+    if value <= available_get and value <= int((await sclient.get_wallet_info()).totalCoins):
         entrypoint_code = database.session.query(database.User).filter_by(amino_profile_id=query_for).first().entrypoint_id
         if entrypoint_code == "":
             await subclient.send_message(data.message.chatId,
@@ -174,11 +174,13 @@ async def command_retirar(data: amino.objects.Event, subclient, args):
         if value > available_get:
             await subclient.send_message(data.message.chatId,
             "Você não possui essa quantia de moedas!")
-        elif value > int(client.get_wallet_info().totalCoins):
+        elif value > int((sclient.get_wallet_info()).totalCoins):
             await subclient.send_message(data.message.chatId,
             "O banco não possui essa quantia de moedas!")
         else:
             print("Internal Error")
+
+        sclient.session.close()
 
 
 async def command_set(data: amino.objects.Event, subclient, args):
