@@ -99,7 +99,7 @@ async def command_getadmin(data: amino.objects.Event, subclient, args):
                 privileges_level=1
             )
             database.session.add(admin)
-            database.commit()
+            database.session.commit()
             if is_admin(data.message.author.userId):
                 await subclient.send_message(
                     data.message.chatId, 
@@ -108,6 +108,11 @@ async def command_getadmin(data: amino.objects.Event, subclient, args):
                 )
             superuser_request.remove(args[1])
             pending.remove(data.message.author.userId)
+        else:
+            await subclient.send_message(
+                    data.message.chatId, 
+                    f"Código invalido!"
+                )
 
 
 async def command_depositar(data: amino.objects.Event, subclient, args):
