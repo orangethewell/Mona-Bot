@@ -13,7 +13,8 @@ client = amino.Client()
 
 activity_modules = {
     "registering": {},
-    "online": []
+    "online": [],
+    "blog_developing": []
 }
 
 superuser_request = []
@@ -56,6 +57,48 @@ async def update_banktips_data(subclient):
 async def command_temporally_not_available(data: amino.objects.Event, subclient, args):
     await subclient.send_message(data.message.chatId,
         "Esse comando está temporariamente indisponível.")
+
+async def command_finish_blog(data: amino.objects.Event, subclient: amino.SubClient, args):
+    if is_online(data.message.author.userId) and is_admin(data.message.author.userId):
+        query_for = data.message.author.userId
+    else:
+        await subclient.send_message(data.message.chatId,
+        "Você não está logado ou não é um administrador!")
+        return None
+    
+    GET_CONTENT = False
+    content = []
+
+    if data.message.chatId in activity_modules["blog_developing"]:
+        messages = await subclient.get_chat_messages(data.message.chatId)
+        for message in messages.content:
+            if message.startswith("+criarblog"):
+                GET_CONTENT = True
+            
+            elif GET_CONTENT:
+                content.append(message)
+            
+            elif message.startswith("+finalizarblog"):
+                GET_CONTENT = False
+
+            print(message)
+    
+    print(content)
+    content.append(f"\n\n[CI]Ass.: {data.message.author.nickname}")
+    content = "\n".join(content)
+    subclient.post_blog("# Blog Criado por Bot", content)
+    activity_modules["blog_developing"].remove(data.message.chatId)
+
+async def command_create_blog(data: amino.objects.Event, subclient: amino.SubClient, args):
+    if is_online(data.message.author.userId) and is_admin(data.message.author.userId):
+        query_for = data.message.author.userId
+    else:
+        await subclient.send_message(data.message.chatId,
+        "Você não está logado ou não é um administrador!")
+        return None
+
+    await subclient.send_message(data.message.chatId, "Envie seu blog aqui: ")
+    activity_modules["blog_developing"].append(data.message.chatId)
 
 async def command_getbankusers(data: amino.objects.Event, subclient: amino.SubClient, args):
     if not is_admin(data.message.author.userId):
