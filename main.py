@@ -109,7 +109,7 @@ async def command_getbankusers(data: amino.objects.Event, subclient: amino.SubCl
     else:
         users = database.session.query(database.User).all()
 
-        if is_chat_private(subclient, data.message.chatId):
+        if await is_chat_private(subclient, data.message.chatId):
             for user in users:
                 try:
                     userprofile = await subclient.get_user_info(user.amino_profile_id)
