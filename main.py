@@ -581,6 +581,8 @@ async def setup_bot():
         "getadmin": command_getadmin,
         "saldo": command_getsaldo, 
         "bankusers": command_getbankusers,
+        "criarblog": command_create_blog,
+        "finalizarblog": command_finish_blog,
     }
 
     await client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
