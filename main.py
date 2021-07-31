@@ -14,8 +14,10 @@ client = amino.Client()
 activity_modules = {
     "registering": {},
     "online": [],
-    "blog_developing": []
+    "blog_developing": {}
 }
+
+message_handlers = []
 
 superuser_request = []
 pending = []
@@ -43,6 +45,16 @@ async def is_chat_private(subclient, chatId):
     else:
         return False
 
+def send_to_message_handlers(message):
+    if len(message_handlers) > 0:
+        for handler in message_handlers:
+            handler(message)
+
+def blog_creation_handler(message: amino.objects.Message):
+    if message.author.userId in activity_modules["blog_developing"]:
+        if activity_modules["blog_developing"][message.author.userId]["chat_stream"] == message.chatId:
+            activity_modules["blog_developing"][message.author.userId]["content"].append(message.content) 
+
 async def update_banktips_data(subclient):
     global tippings
     sclient = amino.Client()
@@ -66,28 +78,22 @@ async def command_finish_blog(data: amino.objects.Event, subclient: amino.SubCli
         "Você não está logado ou não é um administrador!")
         return None
     
-    GET_CONTENT = False
-    content = []
+    if data.message.author.userId not in activity_modules["blog_developing"]:
+        await subclient.send_message(data.message.chatId,
+        "Você não criou nenhum blog")
+        return None
 
-    if data.message.chatId in activity_modules["blog_developing"]:
-        messages = await subclient.get_chat_messages(data.message.chatId)
-        for message in messages.content:
-            if message.startswith("+criarblog"):
-                GET_CONTENT = True
-            
-            elif GET_CONTENT:
-                content.append(message)
-            
-            elif message.startswith("+finalizarblog"):
-                GET_CONTENT = False
+    content: list = activity_modules["blog_developing"][data.message.author.userId]["content"]
 
-            print(message)
+    for message in content:
+        if message.startswith("+"):
+            content.remove(message)
     
     print(content)
-    content.append(f"\n\n[CI]Ass.: {data.message.author.nickname}")
+    content.append(f"\n[CI]Ass.: {data.message.author.nickname}")
     content = "\n".join(content)
-    await subclient.post_blog("# Blog Criado por Bot", content)
-    activity_modules["blog_developing"].remove(data.message.chatId)
+    await subclient.post_blog(activity_modules["blog_developing"][data.message.author.userId]["title"], content)
+    del activity_modules["blog_developing"][data.message.author.userId]
 
 async def command_create_blog(data: amino.objects.Event, subclient: amino.SubClient, args):
     if is_online(data.message.author.userId) and is_admin(data.message.author.userId):
@@ -97,8 +103,18 @@ async def command_create_blog(data: amino.objects.Event, subclient: amino.SubCli
         "Você não está logado ou não é um administrador!")
         return None
 
-    await subclient.send_message(data.message.chatId, "Envie seu blog aqui: ")
-    activity_modules["blog_developing"].append(data.message.chatId)
+    if args:
+        title = " ".join(args)
+        await subclient.send_message(data.message.chatId, f"Criando blog ({title}) ")
+        await subclient.send_message(data.message.chatId, "Envie seu blog aqui: ")
+        activity_modules["blog_developing"][data.message.author.userId] = {
+            "title": title,
+            "chat_stream": data.message.chatId,
+            "content": []
+            }
+        
+        if blog_creation_handler not in message_handlers:
+            message_handlers.append(blog_creation_handler)
 
 async def command_getbankusers(data: amino.objects.Event, subclient: amino.SubClient, args):
     if not is_admin(data.message.author.userId):
@@ -563,6 +579,8 @@ async def on_text_message(data: amino.objects.Event):
     if message.startswith("+"):
         message = message.replace("+", "").split(" ")
         await execute_command(message[0], data, message[1:] if len(message) >= 2 else [])
+    
+    send_to_message_handlers(data.message)
 
     print(f"{data.message.author.nickname}: {data.message.content}" if IS_ON and not IS_SENSITIVE else "")
     IS_SENSITIVE = False
