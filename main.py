@@ -86,7 +86,7 @@ async def command_finish_blog(data: amino.objects.Event, subclient: amino.SubCli
     print(content)
     content.append(f"\n\n[CI]Ass.: {data.message.author.nickname}")
     content = "\n".join(content)
-    subclient.post_blog("# Blog Criado por Bot", content)
+    await subclient.post_blog("# Blog Criado por Bot", content)
     activity_modules["blog_developing"].remove(data.message.chatId)
 
 async def command_create_blog(data: amino.objects.Event, subclient: amino.SubClient, args):
