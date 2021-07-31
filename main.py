@@ -1,4 +1,5 @@
-import time
+import datetime
+from re import sub
 import amino
 import asyncio
 import database
@@ -70,6 +71,19 @@ async def command_temporally_not_available(data: amino.objects.Event, subclient,
     await subclient.send_message(data.message.chatId,
         "Esse comando está temporariamente indisponível.")
 
+async def command_delete_blog(data: amino.objects.Event, subclient: amino.SubClient, args):
+    if args:
+        if is_online(data.message.author.userId) and is_admin(data.message.author.userId):
+            query_for = data.message.author.userId
+        
+        else:
+            await subclient.send_message(data.message.chatId,
+            "Você não está logado ou não é um administrador!")
+            return None
+
+        blogid = await subclient.get_from_code(args[0])
+        await subclient.delete_blog(blogid)
+
 async def command_finish_blog(data: amino.objects.Event, subclient: amino.SubClient, args):
     if is_online(data.message.author.userId) and is_admin(data.message.author.userId):
         query_for = data.message.author.userId
@@ -84,6 +98,7 @@ async def command_finish_blog(data: amino.objects.Event, subclient: amino.SubCli
         return None
 
     content: list = activity_modules["blog_developing"][data.message.author.userId]["content"]
+    blog_info = activity_modules["blog_developing"][data.message.author.userId]
 
     for message in content:
         if message.startswith("+"):
@@ -93,6 +108,8 @@ async def command_finish_blog(data: amino.objects.Event, subclient: amino.SubCli
     content.append(f"\n[CI]Ass.: {data.message.author.nickname}")
     content = "\n".join(content)
     await subclient.post_blog(activity_modules["blog_developing"][data.message.author.userId]["title"], content)
+    await subclient.send_message(data.message.chatId, 
+    f"Post criado com sucesso!\n\nTítulo: {blog_info['title']}\nData de criação: {datetime.datetime.utcnow()}\nConteúdo: \n\n{content}")
     del activity_modules["blog_developing"][data.message.author.userId]
 
 async def command_create_blog(data: amino.objects.Event, subclient: amino.SubClient, args):
@@ -601,6 +618,7 @@ async def setup_bot():
         "bankusers": command_getbankusers,
         "criarblog": command_create_blog,
         "finalizarblog": command_finish_blog,
+        "deletarblog": command_delete_blog,
     }
 
     await client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
