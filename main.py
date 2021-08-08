@@ -87,9 +87,14 @@ async def command_temporally_not_available(data: amino.objects.Event, subclient,
         "Esse comando está temporariamente indisponível.")
 
 async def command_cat(data: amino.objects.Event, subclient: amino.SubClient, args):
-    get_cat = requests.get("https://cataas.com/cat").content
-    cat = io.BytesIO(get_cat)
-    await subclient.send_message(data.message.chatId, file=cat, fileType="image")
+    if args:
+        get_cat = requests.get(f"https://cataas.com/cat/says/{'+'.join(args)}").content
+        cat = io.BytesIO(get_cat)
+        await subclient.send_message(data.message.chatId, file=cat, fileType="gif")
+    else:
+        get_cat = requests.get("https://cataas.com/cat/gif").content
+        cat = io.BytesIO(get_cat)
+        await subclient.send_message(data.message.chatId, file=cat, fileType="gif")
 
 async def command_kirito_marry(data: amino.objects.Event, subclient: amino.SubClient, args):
     messages = [
@@ -652,7 +657,7 @@ async def setup_bot():
         "finalizarblog": command_finish_blog,
         "deletarblog": command_temporally_not_available, # command_delete_blog,
         "kirito": command_kirito_marry,
-        "cat": command_cat,
+        "miau": command_cat,
     }
 
     await client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
