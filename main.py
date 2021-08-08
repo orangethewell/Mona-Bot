@@ -28,7 +28,7 @@ pending = []
 wikicode = "z9e7as"
 
 #Workaround for Client socket close
-def close(self):
+async def close(self: amino.socket.SocketHandler):
     if self.debug is True:
         print(f"[socket][close] Closing Socket")
     self.active = False
@@ -670,7 +670,7 @@ async def background_up_task():
     global client
     client.close = close
     while True:
-        client.close()
+        await client.close()
         await client.startup()
         await asyncio.sleep(360)
 
