@@ -1,11 +1,12 @@
 import datetime
-from re import sub
 import amino
 import asyncio
 import database
 import hashlib
 import uuid
 import os
+
+# https://service.narvii.com/static/#/account/change-password?deviceid=22E7A0DCACF20C45BDC26432A1AABF08EBC0602A5F386BFB7DCB3762D359FE18C2C80C6DCDA4742021&sid=AnsiMSI6IG51bGwsICIwIjogMiwgIjMiOiAwLCAiMiI6ICI4YjFjZmU0NC00NzY4LTRmMDgtOTZkNC1kNGQ5NTM2YWNmNjYiLCAiNSI6IDE2MjgzNTg
 
 IS_ON = False
 IS_SENSITIVE = False
@@ -637,6 +638,11 @@ async def setup_bot():
     IS_ON = True
     IS_SENSITIVE = False
 
+async def background_up_task():
+    while True:
+        await client.close()
+        await client.startup()
+        await asyncio.sleep(360)
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
