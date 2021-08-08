@@ -87,7 +87,7 @@ async def command_temporally_not_available(data: amino.objects.Event, subclient,
         "Esse comando está temporariamente indisponível.")
 
 async def command_cat(data: amino.objects.Event, subclient: amino.SubClient, args):
-    get_cat = requests.get("www.cataas.com/cat").response
+    get_cat = requests.get("https://cataas.com/cat").content
     cat = BytesIO.read(get_cat)
     await subclient.send_message(data.message.chatId, file=cat, fileType="image")
 
