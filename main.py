@@ -640,7 +640,7 @@ async def setup_bot():
 
 async def background_up_task():
     while True:
-        await client.close()
+        client.close()
         await client.startup()
         await asyncio.sleep(360)
 
