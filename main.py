@@ -3,10 +3,10 @@ import amino
 import asyncio
 import database
 import hashlib
+import random
 import uuid
 import os
 
-# https://service.narvii.com/static/#/account/change-password?deviceid=22E7A0DCACF20C45BDC26432A1AABF08EBC0602A5F386BFB7DCB3762D359FE18C2C80C6DCDA4742021&sid=AnsiMSI6IG51bGwsICIwIjogMiwgIjMiOiAwLCAiMiI6ICI4YjFjZmU0NC00NzY4LTRmMDgtOTZkNC1kNGQ5NTM2YWNmNjYiLCAiNSI6IDE2MjgzNTg
 
 IS_ON = False
 IS_SENSITIVE = False
@@ -71,6 +71,19 @@ async def update_banktips_data(subclient):
 async def command_temporally_not_available(data: amino.objects.Event, subclient, args):
     await subclient.send_message(data.message.chatId,
         "Esse comando está temporariamente indisponível.")
+
+async def command_kirito_marry(data: amino.objects.Event, subclient: amino.SubClient, args):
+    messages = [
+        "Amo você, meu bem 🥰💖",
+        "Com tanto trabalho, ouvir seu nome agora me faz tão feliz! 😊",
+        "Obrigada por sempre preocupar comigo, mesmo eu sendo uma bot hihi 🤭",
+        "Infelizmente não posso dar dinheiro, mas agradeço por ser um amorzinho comigo! 😚",
+        "O meu prazer é você estar aqui do meu lado! 💕"
+        ]
+
+        message = random.choice(messages)
+
+        await subclient.send_message(data.message.chatId, message)
 
 async def command_delete_blog(data: amino.objects.Event, subclient: amino.SubClient, args):
     if args:
@@ -561,12 +574,12 @@ async def command_registrar(data: amino.objects.Event, subclient, args):
 
 async def command_banktotal(data: amino.objects.Event, subclient, args):
     await subclient.send_message(data.message.chatId, 
-    f"Atualmente, tenho {int(client.get_wallet_info().totalCoins)} Amino Coins na minha carteira. :)")
+    f"Atualmente, tenho {int(client.get_wallet_info().totalCoins)} Amino Coins na minha carteira 🪙")
 
 async def command_ping(data: amino.objects.Event, subclient, args):
     await subclient.send_message(
         data.message.chatId, 
-        f"pong 2.0! <$@{data.message.author.nickname}$>", 
+        f"pong! 🏓<$@{data.message.author.nickname}$>", 
         mentionUserIds=[data.message.author.userId])
 
 async def execute_command(command, data: amino.objects.Event, args):
@@ -620,6 +633,7 @@ async def setup_bot():
         "criarblog": command_create_blog,
         "finalizarblog": command_finish_blog,
         "deletarblog": command_delete_blog,
+        "kirito": command_kirito_marry,
     }
 
     await client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
