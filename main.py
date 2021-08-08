@@ -78,12 +78,11 @@ async def command_kirito_marry(data: amino.objects.Event, subclient: amino.SubCl
         "Com tanto trabalho, ouvir seu nome agora me faz tão feliz! 😊",
         "Obrigada por sempre preocupar comigo, mesmo eu sendo uma bot hihi 🤭",
         "Infelizmente não posso dar dinheiro, mas agradeço por ser um amorzinho comigo! 😚",
-        "O meu prazer é você estar aqui do meu lado! 💕"
-        ]
+        "O meu prazer é você estar aqui do meu lado! 💕"]
 
-        message = random.choice(messages)
+    message = random.choice(messages)
 
-        await subclient.send_message(data.message.chatId, message)
+    await subclient.send_message(data.message.chatId, message)
 
 async def command_delete_blog(data: amino.objects.Event, subclient: amino.SubClient, args):
     if args:
