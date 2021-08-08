@@ -27,6 +27,17 @@ pending = []
 
 wikicode = "z9e7as"
 
+#Workaround for Client socket close
+def close(self):
+    if self.debug is True:
+            print(f"[socket][close] Closing Socket")
+        self.active = False
+        try:
+            await self.socket.close()
+        except Exception as closeError:
+            if self.debug is True:
+                print(f"[socket][close] Error while closing Socket : {closeError}")
+
 # Other Functions
 def is_admin(userId):
     superuser = database.session.query(database.Admin).filter_by(amino_profile_id = userId).first()
@@ -657,6 +668,7 @@ async def setup_bot():
 
 async def background_up_task():
     global client
+    client.close = close
     while True:
         client.close()
         await client.startup()
