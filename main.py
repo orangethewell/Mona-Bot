@@ -662,4 +662,6 @@ async def background_up_task():
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.create_task(background_up_task())
-    loop.run_until_complete(setup_bot())
+    loop.create_task(setup_bot())
+
+    loop.run_forever()
