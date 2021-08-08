@@ -670,7 +670,7 @@ async def background_up_task():
     global client
     client.close = close
     while True:
-        await client.close()
+        await client.close(client)
         await client.startup()
         await asyncio.sleep(360)
 
