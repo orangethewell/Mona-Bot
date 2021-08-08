@@ -90,7 +90,7 @@ async def command_cat(data: amino.objects.Event, subclient: amino.SubClient, arg
     if args:
         get_cat = requests.get(f"https://cataas.com/cat/says/{'+'.join(args)}").content
         cat = io.BytesIO(get_cat)
-        await subclient.send_message(data.message.chatId, file=cat, fileType="gif")
+        await subclient.send_message(data.message.chatId, file=cat, fileType="image")
     else:
         get_cat = requests.get("https://cataas.com/cat/gif").content
         cat = io.BytesIO(get_cat)
