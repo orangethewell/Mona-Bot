@@ -19,6 +19,7 @@ activity_modules = {
     "blog_developing": {}
 }
 
+image_flags = {}
 message_handlers = []
 
 superuser_request = []
@@ -637,7 +638,6 @@ async def setup_bot():
 
     await client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
     subclient = await amino.SubClient(aminoId="Programaspy", profile=client.profile)
-    await client.session.close()
 
     # Show bot status
     print(60*"=")
@@ -655,7 +655,7 @@ async def setup_bot():
 async def background_up_task():
     global client
     while True:
-        client.close()
+        await client.session.close()
         await client.startup()
         await asyncio.sleep(360)
 
