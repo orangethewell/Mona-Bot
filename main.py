@@ -1,14 +1,13 @@
-import datetime
-from io import BytesIO
 import amino
 import asyncio
 import database
+import datetime
 import requests
 import hashlib
 import random
 import uuid
 import os
-
+import io
 
 IS_ON = False
 IS_SENSITIVE = False
@@ -88,7 +87,7 @@ async def command_temporally_not_available(data: amino.objects.Event, subclient,
 
 async def command_cat(data: amino.objects.Event, subclient: amino.SubClient, args):
     get_cat = requests.get("https://cataas.com/cat").content
-    cat = BytesIO.read(get_cat)
+    cat = io.BytesIO(get_cat)
     await subclient.send_message(data.message.chatId, file=cat, fileType="image")
 
 async def command_kirito_marry(data: amino.objects.Event, subclient: amino.SubClient, args):
