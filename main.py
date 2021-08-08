@@ -11,7 +11,7 @@ import os
 IS_ON = False
 IS_SENSITIVE = False
 
-client = amino.Client()
+client = amino.Client(deviceId=os.environ["DEVICEID"])
 
 activity_modules = {
     "registering": {},
@@ -71,7 +71,7 @@ def blog_creation_handler(message: amino.objects.Message):
 
 async def update_banktips_data(subclient):
     global tippings
-    sclient = amino.Client()
+    sclient = amino.Client(deviceId=os.environ["DEVICEID"])
     await sclient.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
     objectid = (await sclient.get_from_code(wikicode)).objectId
     wiki = (await subclient.get_wiki_info(objectid)).wiki
@@ -590,7 +590,7 @@ async def command_banktotal(data: amino.objects.Event, subclient, args):
 async def command_ping(data: amino.objects.Event, subclient, args):
     await subclient.send_message(
         data.message.chatId, 
-        f"pong! 🏓<$@{data.message.author.nickname}$>", 
+        f"pong! 🏓 <$@{data.message.author.nickname}$>", 
         mentionUserIds=[data.message.author.userId])
 
 async def execute_command(command, data: amino.objects.Event, args):
