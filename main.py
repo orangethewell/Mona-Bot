@@ -638,6 +638,7 @@ async def setup_bot():
 
     await client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
     subclient = await amino.SubClient(aminoId="Programaspy", profile=client.profile)
+    await client.session.close()
 
     # Show bot status
     print(60*"=")
@@ -652,16 +653,15 @@ async def setup_bot():
     IS_ON = True
     IS_SENSITIVE = False
 
+    await background_up_task()
+
 async def background_up_task():
     global client
     while True:
-        await client.session.close()
+        client.close()
         await client.startup()
         await asyncio.sleep(360)
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.create_task(background_up_task())
-    loop.create_task(setup_bot())
-
-    loop.run_forever()
+    loop.run_until_complete(setup_bot())
