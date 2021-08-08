@@ -1,7 +1,9 @@
 import datetime
+from io import BytesIO
 import amino
 import asyncio
 import database
+import requests
 import hashlib
 import random
 import uuid
@@ -83,6 +85,11 @@ async def update_banktips_data(subclient):
 async def command_temporally_not_available(data: amino.objects.Event, subclient, args):
     await subclient.send_message(data.message.chatId,
         "Esse comando está temporariamente indisponível.")
+
+async def command_cat(data: amino.objects.Event, subclient: amino.SubClient, args):
+    get_cat = requests.get("www.cataas.com/cat").response
+    cat = BytesIO.read(get_cat)
+    await subclient.send_message(data.message.chatId, file=cat, fileType="image")
 
 async def command_kirito_marry(data: amino.objects.Event, subclient: amino.SubClient, args):
     messages = [
@@ -643,8 +650,9 @@ async def setup_bot():
         "bankusers": command_getbankusers,
         "criarblog": command_create_blog,
         "finalizarblog": command_finish_blog,
-        "deletarblog": command_delete_blog,
+        "deletarblog": command_temporally_not_available, # command_delete_blog,
         "kirito": command_kirito_marry,
+        "cat": command_cat,
     }
 
     await client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
