@@ -649,7 +649,6 @@ async def setup_bot():
 
     await client.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
     subclient = await amino.SubClient(aminoId="Programaspy", profile=client.profile)
-    await client.session.close()
 
     # Show bot status
     print(60*"=")
@@ -665,6 +664,7 @@ async def setup_bot():
     IS_SENSITIVE = False
 
     await background_up_task()
+
 
 async def background_up_task():
     global client
