@@ -1,5 +1,4 @@
 import amino
-import asyncio
 import database
 import datetime
 import requests
@@ -71,13 +70,10 @@ def blog_creation_handler(message: amino.objects.Message):
 
 def update_banktips_data(subclient):
     global tippings
-    sclient = amino.Client(deviceId=os.environ["DEVICEID"])
-    sclient.login(os.environ["BOT_EMAIL"], os.environ["BOT_PASSWORD"])
-    objectid = (sclient.get_from_code(wikicode)).objectId
+    objectid = (client.get_from_code(wikicode)).objectId
     wiki = (subclient.get_wiki_info(objectid)).wiki
     tips = (subclient.get_tipped_users(wikiId=wiki.wikiId))
     tippings = dict(zip(tips.author.userId, tips.totalTippedCoins))
-    sclient.session.close()
 
 # Command Functions
 def command_temporally_not_available(data: amino.objects.Event, subclient, args):
