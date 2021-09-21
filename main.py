@@ -11,7 +11,7 @@ import io
 IS_ON = False
 IS_SENSITIVE = False
 
-client = amino.Client(deviceId=os.environ["DEVICEID"])
+client = amino.Client()
 
 activity_modules = {
     "registering": {},
@@ -674,17 +674,6 @@ def setup_bot():
     IS_ON = True
     IS_SENSITIVE = False
 
-    background_up_task()
-
-
-def background_up_task():
-    global client
-    client.close = close
-    while True:
-        client.close(client)
-        client.startup()
-        asyncio.sleep(360)
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(setup_bot())
+    setup_bot()
